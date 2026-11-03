@@ -27,7 +27,7 @@ A department library lending application where students can browse, borrow, rene
 
 Fill in the method and path from your PRD's endpoint table. Status: ✅ done · 🟡 in progress · ⬜ not started
 
-| # | Method + path | Built | Rules checked in /docs | Connected to React | Who |
+|End Points | Method + path | Built | Rules checked in /docs | Connected to React | Who |
 |---|---|---|---|---|---|
 | E1 |GET |  |  |  ||
 | E2 |GET  |  |  |  ||
