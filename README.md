@@ -12,9 +12,9 @@ A department library lending application where students can browse, borrow, rene
 
 | Day | Partner | What will you do? | Completed? | What are you going to work on next? | Stuck on? |
 |---|---|---|---|---|---|
-| Day 1 | Akshay |  |  |  |  |
-| Day 1 | Bhuvan |  |  |  |  |
-| Day 1 | Jashan |  |  |  |  |
+| Day 1 | Akshay |E1,E4,E8  |  |  |  |
+| Day 1 | Bhuvan |E2,E3,E5  |  |  |  |
+| Day 1 | Jashan |E7,E9,E10  |  |  |  |
 | Day 2 | Akshay |  |  |  |  |
 | Day 2 | Bhuvan |  |  |  |  |
 | Day 2 | Jashan |  |  |  |  |
