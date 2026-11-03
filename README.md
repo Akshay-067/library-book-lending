@@ -1,7 +1,7 @@
-# Library Book Lending
+# Library Book Lending System
 
 ## Team Members
-- Akshay
+- AKshay
 - Bhuvan
 - Jashan
 
@@ -80,5 +80,4 @@ cd frontend
 npm install
 npm run dev
 ```
-
 
