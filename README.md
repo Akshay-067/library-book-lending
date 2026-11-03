@@ -15,11 +15,9 @@ A department library lending application where students can browse, borrow, rene
 | Day 1 | Akshay |  |  |  |  |
 | Day 1 | Bhuvan |  |  |  |  |
 | Day 1 | Jashan |  |  |  |  |
-
 | Day 2 | Akshay |  |  |  |  |
 | Day 2 | Bhuvan |  |  |  |  |
 | Day 2 | Jashan |  |  |  |  |
-
 | Day 3 | Akshay |  |  |  |  |
 | Day 3 | Bhuvan |  |  |  |  |
 | Day 3 |Jashan  |  |  |  |  |
