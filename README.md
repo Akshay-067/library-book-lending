@@ -23,6 +23,23 @@ A department library lending application where students can browse, borrow, rene
 | Day 3 |Jashan  |  |  |  |  |
 
 
+## 2. Endpoint tracker
+
+Fill in the method and path from your PRD's endpoint table. Status: ✅ done · 🟡 in progress · ⬜ not started
+
+| # | Method + path | Built | Rules checked in /docs | Connected to React | Who |
+|---|---|---|---|---|---|
+| E1 |GET |  |  |  ||
+| E2 |GET  |  |  |  ||
+| E3 |POST  |  |  |  ||
+| E4 |PATCH  |  |  |  ||
+| E5 |DELETE |  |  |  ||
+| E6 |POST  |  |  |  ||
+| E7 |PATCH  |  |  |  ||
+| E8 |PATCH  |  |  |  ||
+| E9 |GET  |  |  |  ||
+| E10 |GET  |  |  |  ||
+
 ## Project File Organisation
 
 ```text
