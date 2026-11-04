@@ -111,3 +111,30 @@ def add_new_book(title, author, genre, total_copies):
     }
     session.close()
     return temp
+def loan_return(loan_id: int):
+    session = Session(engine)
+    loan = session.query(loans).filter(loans.id == loan_id).first()
+
+    if not loan:
+        session.close()
+        return {"error": "Loan not found", "status": 404}
+    if loan.returned_on:
+        session.close()
+        return {"error": "Loan already returned", "status": 400}
+
+    loan.returned_on = datetime.today()
+
+    books = session.query(book).filter(book.id == loan.book_id).first()
+    if books:
+        books.copies_available += 1
+
+    session.commit()
+
+    temp = {
+        "id": loan.id,
+        "book_id": loan.book_id,
+        "roll_no": loan.roll_no,
+        "returned_on": loan.returned_on
+    }
+    session.close()
+    return temp
