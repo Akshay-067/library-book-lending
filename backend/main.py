@@ -30,8 +30,9 @@ def loan_renew(loan_id: int):
     return functions.loan_renew(loan_id)
 
 #9
-@app.get("/loans/")
-
+@app.get("/loans/student/{roll_no}")
+def loan_student(roll_no: str):
+    return functions.loan_student(roll_no)
 
 
 #10

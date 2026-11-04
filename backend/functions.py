@@ -60,6 +60,54 @@ def update_total_copies(book_id, new_total_copies):
         "genre": b.genre,
         "total_copies": b.total_copies,
         "copies_available": b.copies_available,
+def get_book(book_id):
+    session = Session(engine)
+    books = session.query(book).filter(book.id == book_id).first()
+    if not books:
+        session.close()
+        return {"error": "Book not found", "status": 404}
+    temp = {
+        "id": books.id,
+        "title": books.title,
+        "author": books.author,
+        "genre": books.genre,
+        "total_copies": books.total_copies,
+        "copies_available": books.copies_available,
+    }
+    session.close()
+    return temp
+
+def delete_book(book_id):
+    session = Session(engine)
+    books = session.query(book).filter(book.id == book_id)
+    if not book:
+        session.close()
+        return None
+    session.delete(book)
+    session.commit()
+    session.close()
+    return {"book deleted"}
+
+def add_new_book(title, author, genre, total_copies):
+    session = Session(engine)
+    books = book(
+        title=title,
+        author=author,
+        genre=genre,
+        total_copies=total_copies,
+        copies_available=total_copies
+    )
+    session.add(book)
+    session.commit()
+    session.refresh(book)
+    
+    temp = {
+        "id": book.id,
+        "title": book.title,
+        "author": book.author,
+        "genre": book.genre,
+        "total_copies": book.total_copies,
+        "copies_available": book.copies_available
     }
     session.close()
     return temp

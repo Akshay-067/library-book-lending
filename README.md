@@ -1,7 +1,7 @@
 # Library Book Lending System
 
 ## Team Members
-- Akshay
+- AKshay
 - Bhuvan
 - Jashan
 
