@@ -27,6 +27,16 @@ class book(Base):
     total_copies = Column(int)
     copies_available = Column(int)
 
+class Update(Base):
+    __tablename__ = "updates"
+    id = Column(Integer, primary_key=True)
+    book_id = Column(Integer, ForeignKey("books.id"))
+    roll_no = Column(String)
+    borrowed_on = Column(DateTime, default=datetime.now)
+    due_on = Column(DateTime)
+    renewed = Column(bool)
+    returned_on = Column(DateTime, nullable=True)
+
 Base.metadata.create_all(engine)
 
 def get_all_books():
