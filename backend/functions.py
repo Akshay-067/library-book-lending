@@ -8,7 +8,7 @@ Base = declarative_base()
 
 class Update(Base):
     __tablename__ = "updates"
-    id = Column(Integer, foreign_key=True) 
+    id = Column(Integer, primary_key=True) 
     book_id = Column(Integer, ForeignKey("books.id"))
     roll_no = Column(String)
     borrowed_on = Column(DateTime, default=datetime.now)
