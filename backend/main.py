@@ -6,7 +6,11 @@ app = FastAPI()
 
 @app.get("/books/{book_id}")
 def get_book(book_id: int):
-    return functions.get_book(book_id = book_id)
+    results=functions.get_book(book_id = book_id)
+    if not results:
+        raise HTTPException(status_code=404, detail="Book not found")
+    return results
+
 
 @app.post("/books")
 def add_book(title: str, author: str, total_copies: int, genre: str):
@@ -15,8 +19,6 @@ def add_book(title: str, author: str, total_copies: int, genre: str):
 @app.delete("/books/{book_id}")
 def delete_book(book_id: int):
     return functions.delete_book(book_id=book_id)
-
-
 
 @app.get("/books")
 def menu(genre: str = None, title: str = None):
@@ -30,3 +32,16 @@ def update_total_copies(book_id:int,total_copies:int):
 @app.patch("/loans/{loan_id}/return")
 def return_loan(loan_id: int):
     return functions.loan_return(loan_id)
+
+@app.patch("/loans/{loan_id}/renew")
+def loan_renew(loan_id: int):
+    return functions.loan_renewal(loan_id)
+
+@app.get("/loans/student/{roll_no}")
+def loan_student(roll_no: str):
+    return functions.student_loans(roll_no)
+
+
+@app.get("/loans/overdue")
+def overdue():
+    return functions.loans_overdue()
