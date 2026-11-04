@@ -14,3 +14,4 @@ def add_book(title: str, author: str, total_copies: int, genre: str, copies_avai
 @app.delete("/books/{book_id}")
 def delete_book(book_id: int):
     return functions.delete_book(book_id=book_id)
+
