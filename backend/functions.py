@@ -1,6 +1,6 @@
 from sqlalchemy import Integer, String, Boolean, Column, DateTime, create_engine, inspect, ForeignKey
 from sqlalchemy.orm import Session, declarative_base
-from datetime import datetime
+from datetime import datetime,timedelta
 
 DB_PATH = "library.db"
 engine = create_engine(f"sqlite:///{DB_PATH}")
@@ -16,7 +16,7 @@ class book(Base):
     total_copies = Column(Integer)
     copies_available = Column(Integer)
 
-class loan(Base):
+class loans(Base):
     __tablename__ = "Loans"
     id = Column(Integer, primary_key=True)
     book_id = Column(Integer, ForeignKey("books.id"))
@@ -28,44 +28,85 @@ class loan(Base):
 
 Base.metadata.create_all(engine)
 
-def get_all_books():
+def get_all_books(genre=None, title=None):
     session = Session(engine)
-    books = session.query(book).all()
+    query = session.query(book)
+    if genre:
+        query = query.filter(book.genre == genre)
+    if title:
+        query = query.filter(book.title.contains(title))
+    books = query.all()
     response = []
-    for b in books:
+    for books in books:
         temp_books = {
-            "id": b.id,
-            "title": b.title,
-            "author": b.author,
-            "genre": b.genre,
-            "total_copies": b.total_copies,
-            "copies_available": b.copies_available,
+            "id": books.id,
+            "title": books.title,
+            "author": books.author,
+            "genre": books.genre,
+            "total_copies": books.total_copies,
+            "copies_available": books.copies_available,
         }
         response.append(temp_books)
     session.close()
     return response
 
+
 def update_total_copies(book_id, new_total_copies):
     session = Session(engine)
-    b = session.query(book).filter(book.id == book_id).first()
-    diff = new_total_copies - b.total_copies
-    b.total_copies = new_total_copies
-    b.copies_available = b.copies_available + diff
+    books = session.query(book).filter(book.id == book_id)
+    diff = new_total_copies - books.total_copies
+    books.total_copies = new_total_copies
+    books.copies_available = books.copies_available + diff
     session.commit()
 
     temp = {
-        "id": b.id,
-        "title": b.title,
-        "author": b.author,
-        "genre": b.genre,
-        "total_copies": b.total_copies,
-        "copies_available": b.copies_available,
+        "id": books.id,
+        "title": books.title,
+        "author": books.author,
+        "genre": books.genre,
+        "total_copies": books.total_copies,
+        "copies_available": books.copies_available,
+    }
+    session.close()
+    return temp
+
+
+def loan_return(loan_id: int):
+    session = Session(engine)
+    loan = session.query(loans).filter(loans.id == loan_id)
+
+    if not loan:
+        session.close()
+        return {"error": "Loan not found", "status": 404}
+    if loan.returned_on:
+        session.close()
+        return {"error": "Loan already returned", "status": 400}
+
+    loan.returned_on = datetime.today()
+
+    books = session.query(book).filter(book.id == loan.book_id)
+    if books:
+        books.copies_available += 1
+
+    session.commit()
+
+    temp = {
+        "id": loan.id,
+        "book_id": loan.book_id,
+        "roll_no": loan.roll_no,
+        "returned_on": loan.returned_on
+    }
+    session.close()
+    return temp
+
+
+
 def get_book(book_id):
     session = Session(engine)
-    books = session.query(book).filter(book.id == book_id).first()
+    books = session.query(book).filter(book.id == book_id)
     if not books:
         session.close()
-        return {"error": "Book not found", "status": 404}
+        return None
     temp = {
         "id": books.id,
         "title": books.title,
@@ -80,13 +121,13 @@ def get_book(book_id):
 def delete_book(book_id):
     session = Session(engine)
     books = session.query(book).filter(book.id == book_id)
-    if not book:
+    if not books:
         session.close()
         return None
-    session.delete(book)
+    session.delete(books)
     session.commit()
     session.close()
-    return {"book deleted"}
+    return {"message": "book deleted"}
 
 def add_new_book(title, author, genre, total_copies):
     session = Session(engine)
@@ -97,44 +138,72 @@ def add_new_book(title, author, genre, total_copies):
         total_copies=total_copies,
         copies_available=total_copies
     )
-    session.add(book)
+    session.add(books)
     session.commit()
-    session.refresh(book)
+    session.refresh(books)
     
     temp = {
-        "id": book.id,
-        "title": book.title,
-        "author": book.author,
-        "genre": book.genre,
-        "total_copies": book.total_copies,
-        "copies_available": book.copies_available
+        "id": books.id,
+        "title": books.title,
+        "author": books.author,
+        "genre": books.genre,
+        "total_copies": books.total_copies,
+        "copies_available": books.copies_available
     }
     session.close()
     return temp
-def loan_return(loan_id: int):
+
+def loan_renewal(loan_id: int):
     session = Session(engine)
     loan = session.query(loans).filter(loans.id == loan_id).first()
-
-    if not loan:
-        session.close()
-        return {"error": "Loan not found", "status": 404}
-    if loan.returned_on:
-        session.close()
-        return {"error": "Loan already returned", "status": 400}
-
-    loan.returned_on = datetime.today()
-
-    books = session.query(book).filter(book.id == loan.book_id).first()
-    if books:
-        books.copies_available += 1
-
-    session.commit()
-
-    temp = {
-        "id": loan.id,
-        "book_id": loan.book_id,
-        "roll_no": loan.roll_no,
-        "returned_on": loan.returned_on
-    }
+    result = None
+    if loan is None:
+        result = None
+    elif loan.returned_on is not None:
+        result = "already_returned"
+    elif loan.renewed:
+        result = "already_renewed"
+    elif loan.due_on < datetime.today():
+        result = "overdue"
+    else:
+        loan.due_on = loan.due_on + timedelta(days=14)
+        loan.renewed = True
+        session.commit()
+        result = {"id": loan_id, "due_on": loan.due_on}
     session.close()
-    return temp
+    return result
+
+
+def loans_overdue():
+    session = Session(engine)
+    active_loans = session.query(loans).filter(loans.returned_on.is_(None)).all()
+    response = []
+    for loan in active_loans:
+        if loan.due_on and loan.due_on < datetime.today():
+            books = session.query(book).filter(book.id == loan.book_id).first()
+            response.append({
+                "id": loan.id,
+                "book_id": loan.book_id,
+                "title": books.title,
+                "roll_no": loan.roll_no,
+                "due_on": loan.due_on
+            })
+    session.close()
+    return response
+
+
+def student_loans(roll_no: str):
+    session = Session(engine)
+    active_loans = session.query(loans).filter(
+        loans.roll_no == roll_no,
+        loans.returned_on.is_(None)
+    ).all()
+    response = []
+    for loan in active_loans:
+        books = session.query(book).filter(book.id == loan.book_id).first()
+        response.append({
+            "book_id": loan.book_id,
+            "title": books.title
+        })
+    session.close()
+    return response
