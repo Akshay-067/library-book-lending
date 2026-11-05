@@ -1,9 +1,7 @@
 import { useState } from "react";
-
-import books from "./components/books";
+import Books from "./components/books";
 import Librarian from "./components/Librarian";
 import MyLoans from "./components/my_loans";
-
 
 function App() {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -15,21 +13,19 @@ function App() {
   return (
     <div className="app-container">
       <header className="page-header">
-        <h1> Library Book Lending </h1>
-        <p>Borrow and return books from the library
-            (you will not read it anyways).</p>
+        <h1>Library Book Lending📚</h1>
       </header>
 
       <section className="dashboard-section">
-        <Librarian refreshKey={refreshKey} />
+        <Books refreshKey={refreshKey} onChange={refreshPage} />
       </section>
 
       <section className="dashboard-section">
-        <my_loans />
+        <MyLoans refreshKey={refreshKey} onChange={refreshPage} />
       </section>
 
       <section className="dashboard-section">
-        <my_loans onLoanAdded={refreshPage} />
+        <Librarian refreshKey={refreshKey} onChange={refreshPage} />
       </section>
     </div>
   );
