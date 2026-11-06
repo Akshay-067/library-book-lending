@@ -29,16 +29,16 @@ Fill in the method and path from your PRD's endpoint table. Status: ✅ done · 
 
 |End Points | Method + path | Built | Rules checked in /docs | Connected to React | Who did?  |
 |---|---|---|---|---|---|
-| E1 |GET |✅  |  |Yes  |Akshay|
-| E2 |GET  |✅  |  |Yes  |Bhuvan|
-| E3 |POST  |✅  |  |Yes  |Bhuvan|
-| E4 |PATCH  |✅  |  |Yes  |Akshay|
-| E5 |DELETE |✅  |  |Yes  |Bhuvan|
-| E6 |POST  |✅  |  |Yes  |All|
-| E7 |PATCH  |✅  |  |Yes  |Jashan|
-| E8 |PATCH  |✅  |  |Yes  |Akshay|
-| E9 |GET  |✅  |  |Yes  |Jashan|
-| E10 |GET  |✅  |  |Yes  |Jashan|
+| E1 |GET |✅  |✅  |Yes  |Akshay|
+| E2 |GET  |✅  |✅   |Yes  |Bhuvan|
+| E3 |POST  |✅  |✅   |Yes  |Bhuvan|
+| E4 |PATCH  |✅  |✅   |Yes  |Akshay|
+| E5 |DELETE |✅  |✅   |Yes  |Bhuvan|
+| E6 |POST  |✅  |✅  |Yes  |All|
+| E7 |PATCH  |✅  |✅   |Yes  |Jashan|
+| E8 |PATCH  |✅  |✅   |Yes  |Akshay|
+| E9 |GET  |✅  |✅   |Yes  |Jashan|
+| E10 |GET  |✅  |✅   |Yes  |Jashan|
 
 ## Project File Organisation
 
