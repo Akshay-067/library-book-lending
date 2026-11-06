@@ -6,7 +6,9 @@
 - Jashan
 
 ## Problem Statement
-A department library lending application where students can browse, borrow, renew, and return books using their roll number. Librarians can add books, update copy counts, and view overdue loans. Built with React, FastAPI, and SQLite. No login is required.
+A department library lending application where students can browse, borrow, renew, and return books using their roll number. 
+Librarians can add books, update copy counts, and view overdue loans. Built with React, FastAPI, and SQLite. 
+No login is required.
 
 ## Who is doing what
 
