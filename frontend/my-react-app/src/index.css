@@ -1,0 +1,165 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: #f5efe3;
+  color: #3b2f2f;
+  line-height: 1.5;
+}
+
+.app-container {
+  max-width: 950px;
+  margin: 0 auto;
+  padding: 24px 16px 40px;
+}
+
+/* Header */
+.page-header {
+  text-align: center;
+  background: #1f4d3a;
+  color: #f5efe3;
+  padding: 28px 16px;
+  border-radius: 12px;
+  border-bottom: 5px solid #c9a227;
+  margin-bottom: 28px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.page-header h1 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 2.2rem;
+  letter-spacing: 1px;
+}
+
+/* Sections */
+.dashboard-section {
+  background: #fffdf8;
+  padding: 24px;
+  margin-bottom: 24px;
+  border-radius: 12px;
+  border-top: 5px solid #c9a227;
+  box-shadow: 0 2px 8px rgba(59, 47, 47, 0.15);
+}
+
+h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  color: #1f4d3a;
+  margin-top: 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e8dfc8;
+}
+
+h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  color: #5a3a22;
+  margin: 12px 0 6px;
+}
+
+p {
+  margin: 4px 0;
+}
+
+/* Inputs */
+input,
+select {
+  padding: 9px 12px;
+  margin: 4px 4px 4px 0;
+  border: 1px solid #cdbf9f;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 0.95rem;
+  color: #3b2f2f;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #1f4d3a;
+  box-shadow: 0 0 0 3px rgba(31, 77, 58, 0.2);
+}
+
+/* Buttons */
+button {
+  padding: 9px 16px;
+  margin: 4px 4px 4px 0;
+  background: #1f4d3a;
+  color: #f5efe3;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+button:hover {
+  background: #2e6b52;
+}
+
+button:active {
+  transform: scale(0.96);
+}
+
+/* Book and loan cards */
+.book-card {
+  background: #fbf6ea;
+  border: 1px solid #e8dfc8;
+  border-left: 8px solid #7a4b2a;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-top: 12px;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.book-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(59, 47, 47, 0.2);
+}
+
+.book-card h3 {
+  margin-top: 0;
+}
+
+/* Messages */
+.error {
+  color: #9b1c1c;
+  background: #fdeaea;
+  border-left: 4px solid #9b1c1c;
+  border-radius: 4px;
+  padding: 0 10px;
+}
+
+.success {
+  color: #1d6b3a;
+  background: #e7f6ec;
+  border-left: 4px solid #1d6b3a;
+  border-radius: 4px;
+  padding: 0 10px;
+}
+
+.error:empty,
+.success:empty {
+  display: none;
+}
+
+.error:not(:empty),
+.success:not(:empty) {
+  padding: 8px 10px;
+  margin: 8px 0;
+}
+
+/* Small screens */
+@media (max-width: 600px) {
+  .page-header h1 {
+    font-size: 1.6rem;
+  }
+
+  input,
+  select {
+    width: 100%;
+    margin-right: 0;
+  }
+}
