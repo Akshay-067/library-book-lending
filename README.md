@@ -1,7 +1,7 @@
 # Library Book Lending System
 
 ## Team Members
-- AKshay
+- Akshay
 - Bhuvan
 - Jashan
 
@@ -12,15 +12,15 @@ A department library lending application where students can browse, borrow, rene
 
 | Day | Partner | What will you do? | Completed? | What are you going to work on next? | Stuck on? |
 |---|---|---|---|---|---|
-| Day 1 | Akshay |E1,E4,E8  |  |  |  |
-| Day 1 | Bhuvan |E2,E3,E5  |  |  |  |
-| Day 1 | Jashan |E7,E9,E10  |  |  |  |
-| Day 2 | Akshay |  |  |  |  |
-| Day 2 | Bhuvan |  |  |  |  |
-| Day 2 | Jashan |  |  |  |  |
-| Day 3 | Akshay |  |  |  |  |
-| Day 3 | Bhuvan |  |  |  |  |
-| Day 3 |Jashan  |  |  |  |  |
+| Day 1 | Akshay |E1,E4, |✅  |  | No |
+| Day 1 | Bhuvan |E2,E3,E5  |✅   |  | No  |
+| Day 1 | Jashan | - |✅   |  | No  |
+| Day 2 | Akshay | E8, Backend  |✅   |  | No |
+| Day 2 | Bhuvan | Backend |✅   |  | No  |
+| Day 2 | Jashan | E7,E9,E10, Backend |✅   |  | No |
+| Day 3 | Akshay | E6, App.jsx, Components: Librerian.jsx |✅   |  | No |
+| Day 3 | Bhuvan | E6, Components: book.jsx , Index.css, README.md|✅   |  | No |
+| Day 3 |Jashan  | E6, Main.jsx, Components: my_loans.jsx|✅   |  | No |
 
 
 ## 2. Endpoint tracker
