@@ -97,14 +97,3 @@ def borrow(book_id: int, roll_no: str):
     if roll_no == "":
         raise HTTPException(status_code=422, detail="Roll number can't be empty")
     result = functions.borrow_book(book_id, roll_no)
-    if result is None:
-        raise HTTPException(status_code=404, detail="Book not found")
-    if result == "no_copies":
-        raise HTTPException(status_code=400, detail="No copies available")
-    if result == "max_loans":
-        raise HTTPException(status_code=400, detail="This student already has 3 books.")
-    if result == "has_overdue":
-        raise HTTPException(status_code=400, detail="Student has an overdue loan")
-    if result == "already_has":
-        raise HTTPException(status_code=400, detail="Student already has this book")
-    return result

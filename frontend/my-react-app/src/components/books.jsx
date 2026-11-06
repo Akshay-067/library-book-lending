@@ -6,6 +6,8 @@ function Books({ refreshKey, onChange }) {
     const [search, setSearch] = useState("");
     const [genre, setGenre] = useState("");
     const [rollNo, setRollNo] = useState("");
+    const [message, setMessage] = useState("");
+    const [selectedBook, setSelectedBook] = useState(null);
 
     const API_URL = "http://127.0.0.1:8001";
 
@@ -24,7 +26,7 @@ function Books({ refreshKey, onChange }) {
     function borrowBook(id) {
 
         if (rollNo === "") {
-            alert("Enter your roll number");
+            setMessage("Enter your roll number");
             return;
         }
 
@@ -34,11 +36,11 @@ function Books({ refreshKey, onChange }) {
             })
             .then(({ response, data }) => {
                 if (!response.ok) {
-                    alert(data.detail);
+                    setMessage(data.detail);
                     return;
                 }
 
-                alert("Book borrowed successfully!");
+                setMessage("Book borrowed successfully!");
 
                 setRollNo("");
                 onChange();
@@ -57,12 +59,7 @@ function Books({ refreshKey, onChange }) {
         fetch(`${API_URL}/books/${id}`)
             .then((response) => response.json())
             .then((book) => {
-                alert(
-                    "Title: " + book.title +
-                    "\nAuthor: " + book.author +
-                    "\nGenre: " + book.genre +
-                    "\nAvailable Copies: " + book.copies_available
-                );
+                setSelectedBook(book);
             });
     }
 
@@ -70,6 +67,8 @@ function Books({ refreshKey, onChange }) {
         <div>
 
             <h2>Library Books</h2>
+
+            <p className="error">{message}</p>
 
             <input
                 type="text"
@@ -96,6 +95,19 @@ function Books({ refreshKey, onChange }) {
                 value={rollNo}
                 onChange={(e) => setRollNo(e.target.value)}
             />
+
+            {selectedBook && (
+                <div className="book-card">
+                    <h3>{selectedBook.title}</h3>
+                    <p>Author: {selectedBook.author}</p>
+                    <p>Genre: {selectedBook.genre}</p>
+                    <p>Total Copies: {selectedBook.total_copies}</p>
+                    <p>Available Copies: {selectedBook.copies_available}</p>
+                    <button onClick={() => setSelectedBook(null)}>
+                        Close
+                    </button>
+                </div>
+            )}
 
             {filteredBooks.map((book) => (
 
