@@ -1,8 +1,23 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import functions    
+from pydantic import BaseModel
 
 app = FastAPI()
+
+class BookCreate(BaseModel):
+    title: str
+    author: str
+    total_copies: int
+    genre: str
+
+class LoanCreate(BaseModel):
+    book_id: int
+    roll_no: str
+
+class BookUpdate(BaseModel):
+    total_copies: int
+
 
 GENRES = ["textbook", "fiction", "reference", "magazine", "biography"]
 app.add_middleware(
@@ -22,14 +37,22 @@ def get_book(book_id: int):
 
 
 @app.post("/books")
-def add_book(title: str, author: str, total_copies: int, genre: str):
-    if title=="" or author=="" or genre=="":
-        raise HTTPException(status_code=422,detail="Fields can't be empty")
-    if total_copies<1 or total_copies>20:
-        raise HTTPException(status_code=422,detail="total_copies must be between 1 and 20")
-    if genre not in GENRES:
-        raise HTTPException(status_code=422,detail="Invalid genre")
-    result= functions.add_new_book(title=title, author=author, total_copies=total_copies, genre=genre)
+def add_book(data: BookCreate):
+    if data.title == "" or data.author == "" or data.genre == "":
+        raise HTTPException(status_code=422, detail="Fields can't be empty")
+
+    if data.total_copies < 1 or data.total_copies > 20:
+        raise HTTPException(status_code=422, detail="total_copies must be between 1 and 20")
+
+    if data.genre not in GENRES:
+        raise HTTPException(status_code=422, detail="Invalid genre")
+
+    result = functions.add_new_book(
+        title=data.title,
+        author=data.author,
+        total_copies=data.total_copies,
+        genre=data.genre
+    )
     return result
 
 @app.delete("/books/{book_id}")
@@ -48,13 +71,20 @@ def menu(genre: str = None, title: str = None):
     result= functions.get_all_books(genre=genre, title=title)
     return result
 
+
+
 @app.patch("/books/{book_id}")
-def update_total_copies(book_id:int,total_copies:int):
-    result=functions.update_total_copies(book_id=book_id,new_total_copies=total_copies)
+def update_total_copies(book_id: int, data: BookUpdate):
+    result = functions.update_total_copies(
+        book_id=book_id,
+        new_total_copies=data.total_copies
+    )
+
     if result is None:
-        raise HTTPException(status_code=404,detail="Book not found")
-    if result=="below_loans":
-        raise HTTPException(status_code=400,detail="Total copies below copies on loan")
+        raise HTTPException(status_code=404, detail="Book not found")
+    if result == "below_loans":
+        raise HTTPException(status_code=400, detail="Total copies below copies on loan")
+
     return result
 
 @app.patch("/loans/{loan_id}/return")
@@ -93,7 +123,21 @@ def overdue():
 
 
 @app.post("/loans")
-def borrow(book_id: int, roll_no: str):
-    if roll_no == "":
+def borrow(data: LoanCreate):
+    if data.roll_no == "":
         raise HTTPException(status_code=422, detail="Roll number can't be empty")
-    result = functions.borrow_book(book_id, roll_no)
+
+    result = functions.borrow_book(data.book_id, data.roll_no)
+
+    if result is None:
+        raise HTTPException(status_code=404, detail="Book not found")
+    if result == "no_copies":
+        raise HTTPException(status_code=400, detail="No copies available")
+    if result == "max_loans":
+        raise HTTPException(status_code=400, detail="Maximum loans reached")
+    if result == "has_overdue":
+        raise HTTPException(status_code=400, detail="You have overdue books")
+    if result == "already_has":
+        raise HTTPException(status_code=400, detail="You already borrowed this book")
+
+    return result
