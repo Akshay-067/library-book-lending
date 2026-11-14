@@ -1,204 +1,164 @@
-from sqlalchemy import Integer, String, Boolean, Column, DateTime, create_engine, inspect, ForeignKey
-from sqlalchemy.orm import Session, declarative_base
-from datetime import datetime,timedelta
+from fastapi import FastAPI, HTTPException,Header,Body
+from fastapi.middleware.cors import CORSMiddleware
+import functions    
+from pydantic import BaseModel
 
-DB_PATH = "library.db"
-engine = create_engine(f"sqlite:///{DB_PATH}")
-Base = declarative_base()
-print(inspect(engine).get_table_names())
+app = FastAPI()
 
-class book(Base):
-    __tablename__ = "books"
-    id = Column(Integer, primary_key=True)
-    title = Column(String)
-    author = Column(String)
-    genre = Column(String)
-    total_copies = Column(Integer)
-    copies_available = Column(Integer)
+class BookCreate(BaseModel):
+    title: str
+    author: str
+    total_copies: int
+    genre: str
 
-class loans(Base):
-    __tablename__ = "Loans"
-    id = Column(Integer, primary_key=True)
-    book_id = Column(Integer, ForeignKey("books.id"))
-    roll_no = Column(String)
-    borrowed_on = Column(DateTime, default=datetime.now)
-    due_on = Column(DateTime)
-    renewed = Column(Boolean)
-    returned_on = Column(DateTime, nullable=True)
+class LoanCreate(BaseModel):
+    book_id: int
+    roll_no: str
 
-Base.metadata.create_all(engine)
-
-def get_all_books(genre=None, title=None):
-    session = Session(engine)
-    query = session.query(book)
-    if genre:
-        query = query.filter(book.genre == genre)
-    if title:
-        query = query.filter(book.title.contains(title))
-    books = query.all()
-    response = []
-    for books in books:
-        temp_books = {
-            "id": books.id,
-            "title": books.title,
-            "author": books.author,
-            "genre": books.genre,
-            "total_copies": books.total_copies,
-            "copies_available": books.copies_available,
-        }
-        response.append(temp_books)
-    session.close()
-    return response
+class BookUpdate(BaseModel):
+    total_copies: int
 
 
-def update_total_copies(book_id, new_total_copies):
-    session = Session(engine)
-    books = session.query(book).filter(book.id == book_id)
-    diff = new_total_copies - books.total_copies
-    books.total_copies = new_total_copies
-    books.copies_available = books.copies_available + diff
-    session.commit()
-
-    temp = {
-        "id": books.id,
-        "title": books.title,
-        "author": books.author,
-        "genre": books.genre,
-        "total_copies": books.total_copies,
-        "copies_available": books.copies_available,
-    }
-    session.close()
-    return temp
+GENRES = ["textbook", "fiction", "reference", "magazine", "biography"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173","http://127.0.0.1:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"])
 
 
-def loan_return(loan_id: int):
-    session = Session(engine)
-    loan = session.query(loans).filter(loans.id == loan_id)
-
-    if not loan:
-        session.close()
-        return {"error": "Loan not found", "status": 404}
-    if loan.returned_on:
-        session.close()
-        return {"error": "Loan already returned", "status": 400}
-
-    loan.returned_on = datetime.today()
-
-    books = session.query(book).filter(book.id == loan.book_id)
-    if books:
-        books.copies_available += 1
-
-    session.commit()
-
-    temp = {
-        "id": loan.id,
-        "book_id": loan.book_id,
-        "roll_no": loan.roll_no,
-        "returned_on": loan.returned_on
-    }
-    session.close()
-    return temp
-
-def loan_renewal(loan_id: int):
-    session = Session(engine)
-    session.close()
-    return temp
+@app.get("/books/{book_id}")
+def get_book(book_id: int):
+    results=functions.get_book(book_id = book_id)
+    if not results:
+        raise HTTPException(status_code=404, detail="Book not found")
+    return results
 
 
-def loans_overdue():
-    session = Session(engine)
-    active_loans = session.query(loans).filter(loans.returned_on.is_(None)).all()
-    overdue = []
-    for loan in active_loans:
-        if loan.due_on and loan.due_on < datetime.today():
-            overdue.append(loan)
-    response = []
-    for loan in overdue:
-        books = session.query(book).filter(book.id == loan.book_id)
-        
-        if books:
-            response.append({
-                "id": loan.id,
-                "book_id": loan.book_id,
-                "title": books.title,
-                "roll_no": loan.roll_no,
-                "due_on": loan.due_on
-            })
-            
-    session.close()
-    return response
+@app.post("/books")
+def add_book(data: BookCreate):
+    if data.title == "" or data.author == "" or data.genre == "":
+        raise HTTPException(status_code=422, detail="Fields can't be empty")
 
-def student_loans(roll_no: str):
-    session = Session(engine)
-    
-    active_loans = session.query(loans).filter(
-        loans.roll_no == roll_no,
-        loans.returned_on.is_(None)
-    ).all()
-    
-    response = []
-    for loan in active_loans:
-        books = session.query(book).filter(book.id == loan.book_id)
-        
-        if books:
-            response.append({
-            
-                "book_id": loan.book_id,
-                "title": books.title,
-                
-            })
-            
-    session.close()
-    return response
+    if data.total_copies < 1 or data.total_copies > 20:
+        raise HTTPException(status_code=422, detail="total_copies must be between 1 and 20")
 
-def get_book(book_id):
-    session = Session(engine)
-    books = session.query(book).filter(book.id == book_id)
-    if not books:
-        session.close()
-        return None
-    temp = {
-        "id": books.id,
-        "title": books.title,
-        "author": books.author,
-        "genre": books.genre,
-        "total_copies": books.total_copies,
-        "copies_available": books.copies_available,
-    }
-    session.close()
-    return temp
+    if data.genre not in GENRES:
+        raise HTTPException(status_code=422, detail="Invalid genre")
 
-def delete_book(book_id):
-    session = Session(engine)
-    books = session.query(book).filter(book.id == book_id)
-    if not books:
-        session.close()
-        return None
-    session.delete(books)
-    session.commit()
-    session.close()
-    return {"message": "book deleted"}
-
-def add_new_book(title, author, genre, total_copies):
-    session = Session(engine)
-    books = book(
-        title=title,
-        author=author,
-        genre=genre,
-        total_copies=total_copies,
-        copies_available=total_copies
+    result = functions.add_new_book(
+        title=data.title,
+        author=data.author,
+        total_copies=data.total_copies,
+        genre=data.genre
     )
-    session.add(books)
-    session.commit()
-    session.refresh(books)
-    
-    temp = {
-        "id": books.id,
-        "title": books.title,
-        "author": books.author,
-        "genre": books.genre,
-        "total_copies": books.total_copies,
-        "copies_available": books.copies_available
-    }
-    session.close()
-    return temp
+    return result
+
+@app.delete("/books/{book_id}")
+def delete_book(book_id: int):
+    result=functions.delete_book(book_id=book_id)
+    if result is None:
+        raise HTTPException(status_code=404,detail="Book not found")
+    if result=="on_loan":
+        raise HTTPException(status_code=400,detail="Book has copies out on loan")
+    return result
+
+@app.get("/books")
+def menu(genre: str = None, title: str = None):
+    if genre is not None and genre not in GENRES:
+        raise HTTPException(status_code=422,detail="Invalid genre")
+    result= functions.get_all_books(genre=genre, title=title)
+    return result
+
+
+
+@app.patch("/books/{book_id}")
+def update_total_copies(book_id: int, data: BookUpdate):
+    result = functions.update_total_copies(
+        book_id=book_id,
+        new_total_copies=data.total_copies
+    )
+
+    if result is None:
+        raise HTTPException(status_code=404, detail="Book not found")
+    if result == "below_loans":
+        raise HTTPException(status_code=400, detail="Total copies below copies on loan")
+
+    return result
+
+@app.patch("/loans/{loan_id}/return")
+def return_loan(loan_id: int):
+    result=functions.loan_return(loan_id)
+    if result is None:
+        raise HTTPException(status_code=404,detail="Loan not found")
+    if result=="already_returned":
+        raise HTTPException(status_code=400,detail="Loan already returned")
+    return result
+
+@app.patch("/loans/{loan_id}/renew")
+def loan_renew(loan_id: int):
+    result=functions.loan_renewal(loan_id)
+    if result is None:
+        raise HTTPException(status_code=404,detail="Loan not found")
+    if result=="already_returned":
+        raise HTTPException(status_code=400,detail="Loan already returned")
+    if result=="already_renewed":
+        raise HTTPException(status_code=400,detail="Loan already renewed")
+    if result=="overdue":
+        raise HTTPException(status_code=400,detail="Loan is overdue")
+    return result
+
+@app.get("/loans/student/{roll_no}")
+def loan_student(roll_no: str):
+    result=functions.student_loans(roll_no)
+    if result is None:
+        raise HTTPException(status_code=404,detail="Student not found")
+    return result
+
+@app.get("/loans/overdue")
+def overdue():
+    result=functions.loans_overdue()
+    return result
+
+
+@app.post("/loans")
+def borrow(data: LoanCreate):
+    if data.roll_no == "":
+        raise HTTPException(status_code=422, detail="Roll number can't be empty")
+
+    result = functions.borrow_book(data.book_id, data.roll_no)
+
+    if result is None:
+        raise HTTPException(status_code=404, detail="Book not found")
+    if result == "no_copies":
+        raise HTTPException(status_code=400, detail="No copies available")
+    if result == "max_loans":
+        raise HTTPException(status_code=400, detail="Maximum loans reached")
+    if result == "has_overdue":
+        raise HTTPException(status_code=400, detail="You have overdue books")
+    if result == "already_has":
+        raise HTTPException(status_code=400, detail="You already borrowed this book")
+
+    return result
+
+@app.post("/login")
+def login(username= Body(), password= Body()):
+    token = functions.verify_login(username=username, password=password)
+    if token is None:
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+    return token
+
+@app.post("/refresh")
+def refresh_token(refresh_token=Header(None)):
+    username=functions.verify_token(token=refresh_token, token_type="refresh")
+    if not username:
+        raise HTTPException(status_code=401, detail="Invalid or expired refresh token")
+    access_token = functions.create_token(username=username, token_type="access")
+    return {"access_token": access_token}
+
+@app.post("/register")
+def register_user(user_name= Body(), password=Body()):
+    if functions.register_user(user_name=user_name,password=password):
+        return{"message":"user registered successfully"}
+    raise HTTPException(status_code=400, detail="user already exists")

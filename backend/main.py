@@ -4,6 +4,7 @@ import functions
 
 app = FastAPI()
 
+GENRES = ["textbook", "fiction", "reference", "magazine", "biography"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173","http://127.0.0.1:5173"],
@@ -28,7 +29,7 @@ def add_book(title: str, author: str, total_copies: int, genre: str):
         raise HTTPException(status_code=422,detail="total_copies must be between 1 and 20")
     if genre not in GENRES:
         raise HTTPException(status_code=422,detail="Invalid genre")
-    result= functions.add_new_book(title, author=author, total_copies=total_copies, genre=genre)
+    result= functions.add_new_book(title=title, author=author, total_copies=total_copies, genre=genre)
     return result
 
 @app.delete("/books/{book_id}")
@@ -88,4 +89,22 @@ def loan_student(roll_no: str):
 @app.get("/loans/overdue")
 def overdue():
     result=functions.loans_overdue()
+    return result
+
+
+@app.post("/loans")
+def borrow(book_id: int, roll_no: str):
+    if roll_no == "":
+        raise HTTPException(status_code=422, detail="Roll number can't be empty")
+    result = functions.borrow_book(book_id, roll_no)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Book not found")
+    if result == "no_copies":
+        raise HTTPException(status_code=400, detail="No copies available")
+    if result == "max_loans":
+        raise HTTPException(status_code=400, detail="This student already has 3 books.")
+    if result == "has_overdue":
+        raise HTTPException(status_code=400, detail="Student has an overdue loan")
+    if result == "already_has":
+        raise HTTPException(status_code=400, detail="Student already has this book")
     return result
